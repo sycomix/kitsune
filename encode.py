@@ -44,13 +44,13 @@ for label, files in profiles.items():
         profiles[label] = [r for r in results if r is not None]
 
 first_row = None
-for label, records in profiles.items():
+for records in profiles.values():
     for (data, vector) in records:
         first_row = vector
         break
     break
 
-print("saving to %s ..." % args.output)   
+print(f"saving to {args.output} ...")   
 
 with open(args.output, 'w+t') as fp:
     w = csv.DictWriter(fp, fieldnames=['label'] + list(first_row.keys()))

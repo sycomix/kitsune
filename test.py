@@ -23,13 +23,12 @@ def print_pred(args, screen_name, prediction):
         label = 'legit'
         confidence = prediction[0]
         if args.only in (label, None):
-            print("%20s   legit   %f %%" % (screen_name, prediction[0] * 100.0))
+            print("%20s   legit   %f %%" % (screen_name, confidence * 100.0))
     else:
         label = 'bot'
         confidence = prediction[1]
         if args.only in (label, None):
-            print("%20s   bot     %f %%" % (screen_name, prediction[1] * 100.0))
-
+            print("%20s   bot     %f %%" % (screen_name, confidence * 100.0))
     return (label, confidence * 100.0)
 
 def get_class(prediction):
@@ -60,14 +59,12 @@ model.summary()
 profile_file = os.path.join(args.profile, 'profile.json')
 output_file  = os.path.join(args.profile, 'predictions.csv')
 profile_paths = []
-single_mode = os.path.exists(profile_file)
-
-if single_mode:
+if single_mode := os.path.exists(profile_file):
     profile_paths = [args.profile]
 else:
     profile_paths = list(glob.glob(os.path.join(args.profile, "*")))
 
-print("writing predictions to %s ..." % output_file)
+print(f"writing predictions to {output_file} ...")
 
 print("\n-------\n")
 print("         screen_name | class | confidence\n")
@@ -86,10 +83,10 @@ with open(output_file, 'w+t', newline='') as fp:
             continue
 
         ((user, tweets, replies, retweets), vector) = prof
-        
+
         vector = data.nomalized_from_dict(norm, vector)
         prediction = model.predict(vector)[0]
-        
+
         (label, confidence) = print_pred(args, user['screen_name'], prediction)
 
         w.writerow([user['id'], user['screen_name'], label, confidence])

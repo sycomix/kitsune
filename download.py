@@ -10,7 +10,7 @@ import tweepy
 
 def make_path(path):
     if not os.path.exists(path):
-        print("creating %s" % path)
+        print(f"creating {path}")
         os.makedirs(path)
 
 def parse_date(str_date):
@@ -18,24 +18,24 @@ def parse_date(str_date):
 
 def download_profile(username, profile_file, api):
     if not os.path.exists(profile_file):
-        print("fetching profile for %s ..." % username)
+        print(f"fetching profile for {username} ...")
         profile = api.get_user(username)
         profile = profile._json
         with open(profile_file, 'w+t') as fp:
             json.dump(profile, fp, indent=4, sort_keys=True)
 
 def count_tweets(tweets_path):
-    return len(glob.glob("%s/*.json" % tweets_path))
+    return len(glob.glob(f"{tweets_path}/*.json"))
 
 def save_tweet(tweets_path, tweet):
-    tweet_filename = "%s_%s.json" %(tweet.created_at, tweet.id)
+    tweet_filename = f"{tweet.created_at}_{tweet.id}.json"
     tweet_filename = tweet_filename.replace(' ', '_')
-    tweet_filename = "%s/%s" % (tweets_path, tweet_filename)
+    tweet_filename = f"{tweets_path}/{tweet_filename}"
 
     with open(tweet_filename, 'w+t') as fp:
         json.dump(tweet._json, fp)
 
-    print("saved %s" % tweet_filename)
+    print(f"saved {tweet_filename}")
 
 parser = argparse.ArgumentParser()
 

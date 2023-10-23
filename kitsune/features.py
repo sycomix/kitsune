@@ -8,7 +8,7 @@ from urllib.parse import urlparse, ParseResult
 from collections import Counter, OrderedDict
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-today = datetime.today()
+today = datetime.now()
 
 EMOJI_RE                   = re.compile('[\U00010000-\U0010ffff]', flags=re.UNICODE)
 TFIDF_SIMILARITY_THRESHOLD = 0.7
@@ -27,7 +27,7 @@ def one_hot(b):
 
 def entropy(string):
     prob = [ float(string.count(c)) / len(string) for c in dict.fromkeys(list(string)) ]
-    return - sum([ p * math.log(p) / math.log(2.0) for p in prob ])
+    return -sum(p * math.log(p) / math.log(2.0) for p in prob)
 
 def temporal_distribution(prefix, statuses):
     features = OrderedDict()
@@ -51,28 +51,27 @@ def temporal_distribution(prefix, statuses):
         by_week_day[parsed.weekday()] += 1
         by_month[parsed.month] += 1
 
-    features['%s_avg_delta_t' % prefix] = (avg_delta_t / num_statuses) if num_statuses > 0 else 0.0
+    features[f'{prefix}_avg_delta_t'] = (
+        (avg_delta_t / num_statuses) if num_statuses > 0 else 0.0
+    )
 
     values = []
     for hour in range(0, 24):
         features['%s_per_hour_of_day_%d' % (prefix, hour)] = by_hour[hour]
-     
+
     for weekday in range(0, 7):
         features['%s_per_weekday_%d' % (prefix, hour)] = by_week_day[weekday]
- 
+
     for month in range(1, 13):
         features['%s_per_month_%d' % (prefix, month)] = by_month[month]
 
     return features
 
 def has_field(profile, field):
-    return one_hot(True if field in profile and profile[field] not in (None, "") else False)
+    return one_hot(field in profile and profile[field] not in (None, ""))
 
 def safe_one_hot(profile, field):
-    if field in profile:
-        return one_hot(profile[field])
-    else:
-        return 0.0
+    return one_hot(profile[field]) if field in profile else 0.0
 
 def statuses_metrics(profile_id, statuses, status_metrics=False, rt_metrics=False, reply_metrics=False):
     num_statuses = len(statuses)
@@ -320,12 +319,11 @@ def emoji_metrics(user_statuses):
 
     unique = Counter()
     for s in user_statuses:
-        emojis = EMOJI_RE.findall(s['text'])
-        if emojis:
+        if emojis := EMOJI_RE.findall(s['text']):
             for e in emojis:
                 unique.update([e])
 
-    return ( len(unique), sum([c for e, c in unique.items()]) / total )
+    return len(unique), sum(c for e, c in unique.items()) / total
 
 def place_metrics(user_statuses):
     total = len(user_statuses)
@@ -337,7 +335,7 @@ def place_metrics(user_statuses):
         if 'place' in s and s['place'] is not None:
             unique.update([s['place']['id']])
 
-    tot_statuses_with_place = sum([c for e, c in unique.items()])
+    tot_statuses_with_place = sum(c for e, c in unique.items())
 
     top3 = unique.most_common(3)
     ntop = len(top3)

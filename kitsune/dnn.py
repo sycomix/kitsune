@@ -22,7 +22,7 @@ def build_for(X, Y, epochs, num_hidden_layers=5, size_first_hidden=512, dropout=
     x = normalized_features_input
     size = size_first_hidden
 
-    for i in range(num_hidden_layers):
+    for _ in range(num_hidden_layers):
         x = tf.keras.layers.Dense(units=size, activation='relu')(x)
         if dropout > 0.0:
             x = tf.keras.layers.Dropout(dropout)(x)

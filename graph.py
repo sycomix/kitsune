@@ -87,11 +87,9 @@ for edge, weight in edges.items():
         G.add_edge( left, right, weight = weight)
 
 pos = nx.spring_layout(G)
-pos_labels = {}
-for node, coords in pos.items():
-    pos_labels[node] = (coords[0] + 0.01, coords[1])
-
-
+pos_labels = {
+    node: (coords[0] + 0.01, coords[1]) for node, coords in pos.items()
+}
 w_threshold = args.min_weight * 3
 
 elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] >= w_threshold]
@@ -107,7 +105,7 @@ nx.draw_networkx_labels(G, pos_labels)
 
 nx.write_gml(G, graph_file)
 
-print("graph saved to %s" % graph_file)
+print(f"graph saved to {graph_file}")
 
 plt.axis('off')
 plt.show()            

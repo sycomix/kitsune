@@ -51,7 +51,7 @@ else:
         h_params = json.load(fp)
 
     h_params = { key : [value] for key, value in h_params.items() }
-    
+
 best_accuracy = 0.0
 best_params = None
 best_model = None
@@ -59,7 +59,7 @@ best_model = None
 for param_values in itertools.product(*h_params.values()):
     params = dict(zip(h_params, param_values))
 
-    print("training with %s" % params)
+    print(f"training with {params}")
 
     model = dnn.build_for(X_train, Y_train, args.epochs, **params)
 
@@ -88,7 +88,7 @@ if grid_search:
 
 best_model.save(args.output)
 
-print("model saved to %s ..." % args.output)
+print(f"model saved to {args.output} ...")
 
 print("running on %d test samples ..." % X_test.shape[0])
 
@@ -103,7 +103,7 @@ if grid_search:
     params_file = os.path.join(output_path, "hyper_params.json")
     with open(params_file, 'w+t') as fp:
         json.dump(best_params, fp, indent=4, sort_keys=True)
-    print("optimal hyper parameters saved to %s" % params_file)
+    print(f"optimal hyper parameters saved to {params_file}")
 
 else:
     print("running differential evaluation on %d features ..." % len(feature_names))
@@ -116,17 +116,16 @@ else:
     by_feature = {}
 
     for feature_name in feature_names:
-        print("testing feature %s ..." % feature_name)
+        print(f"testing feature {feature_name} ...")
 
         X_test_run = X_test.copy()
         X_test_run[feature_name] = 0.0
 
         metrics = best_model.evaluate(X_test_run,  Y_test, verbose=0)
-        deltas  = {}
-
-        for metric_index, metric_name in enumerate(ref_metrics_names):
-            deltas[metric_name] = metrics[metric_index] - ref_metrics[metric_index]
-        
+        deltas = {
+            metric_name: metrics[metric_index] - ref_metrics[metric_index]
+            for metric_index, metric_name in enumerate(ref_metrics_names)
+        }
         by_feature[feature_name] = deltas
 
     print()

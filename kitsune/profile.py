@@ -65,11 +65,11 @@ def load(profile_path, limit=200, quiet=False, extract_features_vector=True):
             vector = features.extract(profile, tweets, replies, retweets)
         elif not quiet:
             print("loaded %s : %d tweets, %d replies, %d retweets" % (profile_path, num_tweets, num_replies, num_retweets))        
- 
+
         return (data, vector)
 
     except Exception as e:
         print(traceback.format_exc())
-        print("problem loading %s: %s" % (profile_path, e))
+        print(f"problem loading {profile_path}: {e}")
 
     return None

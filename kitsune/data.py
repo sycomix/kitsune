@@ -6,22 +6,21 @@ def load(filename, normalize=True):
     print("normalizing dataset ...")
 
     dataset = pd.read_csv(filename)
-    
+
     # convert labels to numbers
     dataset['label'] = dataset['label'].apply(lambda x: 1.0 if x == 'bot' else 0.0)
     # drop unrequired columns
     dataset = dataset.drop(columns=['user_id','user_screen_name'], axis = 1)
 
-    if normalize:    
-        # normalization
-        data_min = dataset.min()
-        data_max = dataset.max()
-
-        dataset = ((dataset - data_min) / (data_max - data_min)).fillna(0.0)
-
-        return (data_min, data_max, dataset)
-    else:
+    if not normalize:
         return dataset
+    # normalization
+    data_min = dataset.min()
+    data_max = dataset.max()
+
+    dataset = ((dataset - data_min) / (data_max - data_min)).fillna(0.0)
+
+    return (data_min, data_max, dataset)
 
 def split_row(row, n_labels):
     x = row.iloc[:,1:].copy()
@@ -54,7 +53,7 @@ def split(dataset, p_test, p_val):
     return (X_train, Y_train, X_test, Y_test, X_val, Y_val)
 
 def save_normalizer(filename, datamin, datamax):
-    print("saving normalizing values to %s ..." % filename)
+    print(f"saving normalizing values to {filename} ...")
 
     datamin = datamin.to_dict()
     datamax = datamax.to_dict()
